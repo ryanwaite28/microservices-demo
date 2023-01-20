@@ -46,6 +46,8 @@ export async function testPublishEvent (request: Request, response: Response) {
 
   reply.ack();
 
+  sse.sendData(`1`, UsersMsEventsConstants.MY_EVENT_PROCESSED, reply.body);
+
   return response.json(reply.body);
 }
 
