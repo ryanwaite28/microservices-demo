@@ -48,13 +48,35 @@ By designing an application architecture with docker, it makes it almost trivial
 Normally, you would not include sensitive info in a github repo, like a .env file that contains database connection strings or API keys. I am doing it here because this is just a demo (no sensitive info) and to show a complete example on how to get started with a microservice architecture.
 
 
+
+## Getting the demo up and running
+
+Because this is a demo, i made it easy to start this example.
+1. clone this repo
+2. in the root of this folder, run `docker-compose up --remove-orphans --force-recreate --build`
+3. open browser to `http://localhost:300/users`
+4. in the dev tools console, run this to create a user: 
+```typescript
+fetch(`http://localhost:3000/users`, {
+  credentials: 'include', 
+  method: `POST`, 
+  headers: { 'Content-Type': 'application/json' }, 
+  body: JSON.stringify({ username: 'joe.doe' }) 
+}).then(r => r.json())
+.then(console.log);
+```
+5. refresh the page, you should see a new user object
+
+To clean up after running:
+1. run `docker-compose down --rmi all --remove-orphans --volumes` NOTE that this will delete other containers, images, etc.
+
 ## My Take
 
 I actually really like microservices. Here are a few opinions i have:
 
 <br/>  
 <blockquote>
-Every microservice should have its own database.
+  Every microservice should have its own database.
 </blockquote>
 <br/>
 
