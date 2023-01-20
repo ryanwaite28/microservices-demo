@@ -1,0 +1,28 @@
+(() => {
+  const evtSource = new EventSource("http://localhost:3000/stream", {
+    withCredentials: true,
+  });
+
+  evtSource.addEventListener("Success", (event) => {
+    const data = JSON.parse(event.data);
+    console.log(event, data);
+  });
+
+  evtSource.addEventListener("EventProcessing", (event) => {
+    const data = JSON.parse(event.data);
+    console.log(event, data);
+  });
+
+  evtSource.addEventListener("EventResults", (event) => {
+    const data = JSON.parse(event.data);
+    console.log(event, data);
+  });
+})();
+
+
+
+try {
+  }
+  catch (error) {
+
+  }

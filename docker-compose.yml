@@ -1,0 +1,96 @@
+version: '3.8'
+
+
+
+volumes:
+  users_db:
+    driver: local
+  notifications_db:
+    driver: local
+
+
+
+services:
+  rabbitmq:
+    image: rabbitmq:3.11-management
+    hostname: rabbitmq
+    ports:
+      - '5672:5672'
+
+  # Gateways
+  web-api-gateway:
+    build:
+      context: .
+      dockerfile: ./docker/express-gateway.Dockerfile
+      # target: development
+      args:
+        GATEWAY_APP: web/app.gateway.js
+    ports:
+      - '3000:80'
+    env_file:
+      - ./env/web-api-gateway.env
+      - ./env/rabbitmq.env
+    command: npm run start-web-api-gateway
+    depends_on:
+      - rabbitmq
+    volumes:
+        - .:/app
+        - /app/node_modules
+
+  # Databases
+  users-db:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: postgres_password
+    ports:
+      - 5430:5432
+    volumes: 
+      - users_db:/var/lib/postgresql/data
+
+  notifications-db:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: postgres_password
+    ports:
+      - 5431:5432
+    volumes: 
+      - notifications_db:/var/lib/postgresql/data
+
+  # MicroServices
+  users-microservice:
+    build:
+      context: .
+      dockerfile: ./docker/rabbitmq-microservice.Dockerfile
+      # target: development
+      args:
+        MICROSERVICE_APP: users/app.microservice.js
+    env_file:
+      - ./env/users-microservice.env
+      - ./env/rabbitmq.env
+    command: npm run start-users-ms
+    depends_on:
+      - rabbitmq
+      - users-db
+    volumes:
+        - .:/app
+        - /app/node_modules
+
+  notifications-microservice:
+    build:
+      context: .
+      dockerfile: ./docker/rabbitmq-microservice.Dockerfile
+      # target: development
+      args:
+        MICROSERVICE_APP: notifications/app.microservice.js
+    env_file:
+      - ./env/notifications-microservice.env
+      - ./env/rabbitmq.env
+    command: npm run start-notifications-ms
+    depends_on:
+      - rabbitmq
+      - notifications-db
+    volumes:
+        - .:/app
+        - /app/node_modules
