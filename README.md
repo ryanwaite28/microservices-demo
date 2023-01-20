@@ -53,7 +53,10 @@ Normally, you would not include sensitive info in a github repo, like a .env fil
 
 Because this is a demo, i made it easy to start this example.
 1. clone this repo
-2. in the root of this folder, run `docker-compose up --remove-orphans --force-recreate --build`
+2. in the root of this folder, run this command:
+```
+docker-compose up --remove-orphans --force-recreate --build
+```
 3. open browser to `http://localhost:300/users`
 4. in the dev tools console, run this to create a user: 
 ```typescript
@@ -68,7 +71,10 @@ fetch(`http://localhost:3000/users`, {
 5. refresh the page, you should see a new user object
 
 To clean up after running:
-1. run `docker-compose down --rmi all --remove-orphans --volumes` NOTE that this will delete other containers, images, etc.
+1. run this command. NOTE that this will delete other containers, images, etc:
+```
+docker-compose down --rmi all --remove-orphans --volumes
+```
 
 ## My Take
 
