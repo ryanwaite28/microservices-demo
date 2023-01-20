@@ -8,12 +8,7 @@
     console.log(event, data);
   });
 
-  evtSource.addEventListener("EventProcessing", (event) => {
-    const data = JSON.parse(event.data);
-    console.log(event, data);
-  });
-
-  evtSource.addEventListener("EventResults", (event) => {
+  evtSource.addEventListener("MY_EVENT_PROCESSED", (event) => {
     const data = JSON.parse(event.data);
     console.log(event, data);
   });
