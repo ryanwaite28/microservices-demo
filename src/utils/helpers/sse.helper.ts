@@ -15,7 +15,7 @@ export class SSE {
     const connectionId = Date.now();
     this.user_requests[key][connectionId] = { request, response };
 
-    request.on(`close`, (event) => {
+    response.on(`close`, (event) => {
       console.log(`connection closed:`, { connectionId, event });
       delete this.user_requests[key][connectionId];
     });

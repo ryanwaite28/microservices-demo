@@ -54,6 +54,8 @@ db_init().then(() => {
 
 /** Listen to Messages (typically from some gateway request) */
 
+rabbit.handle(UsersMsMessagesConstants.MY_EVENT, MessagesHandler.onTestMyEvent, process.env.RABBIT_MQ_USERS_QUEUE);
+
 rabbit.handle(UsersMsMessagesConstants.FETCH_USERS_ALL, MessagesHandler.onFetchUsersAll, process.env.RABBIT_MQ_USERS_QUEUE);
 rabbit.handle(UsersMsMessagesConstants.FETCH_USER_BY_ID, MessagesHandler.onFetchUserById, process.env.RABBIT_MQ_USERS_QUEUE);
 rabbit.handle(UsersMsMessagesConstants.FETCH_USER_BY_USERNAME, MessagesHandler.onFetchUserByUsername, process.env.RABBIT_MQ_USERS_QUEUE);

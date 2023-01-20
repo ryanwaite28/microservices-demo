@@ -46,7 +46,7 @@ export async function testPublishEvent (request: Request, response: Response) {
 
   reply.ack();
 
-  return response.json({ data: reply.body });
+  return response.json(reply.body);
 }
 
 

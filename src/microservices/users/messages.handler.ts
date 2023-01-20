@@ -13,6 +13,22 @@ import { UsersMsEventsConstants } from "../../utils/constants/users-ms.events.co
 
 
 
+
+export async function onTestMyEvent (event: rabbit.Message<object>) {
+  console.log('received event', { event });
+  const data = { message: `finished processing` };
+  setTimeout(() => {
+    event.ack();
+    rabbit.publish(process.env.RABBIT_MQ_USERS_EXCHANGE, {
+      type: UsersMsEventsConstants.MY_EVENT_PROCESSED,
+      body: data,
+      contentType: CONTENT_TYPE_APP_JSON,
+    });
+
+  }, 1000);
+  return event.reply({ data }, { contentType: CONTENT_TYPE_APP_JSON } as any);
+}
+
 export async function onFetchUsersAll (event: rabbit.Message<object>) {
   console.log('fetch users all:', event.body);
   const data = await getAllUsers();
