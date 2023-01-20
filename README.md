@@ -57,7 +57,7 @@ Because this is a demo, i made it easy to start this example.
 ```
 docker-compose up --remove-orphans --force-recreate --build
 ```
-3. open browser to `http://localhost:300/users`
+3. open browser to <a href="http://localhost:300/users">http://localhost:300/users</a>
 4. in the dev tools console, run this to create a user: 
 ```typescript
 fetch(`http://localhost:3000/users`, {
