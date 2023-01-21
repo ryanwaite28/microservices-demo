@@ -1,6 +1,7 @@
 export class UsersMsEventsConstants {
 
   public static readonly MY_EVENT_PROCESSED = `MY_EVENT_PROCESSED`;
+  public static readonly MY_EVENT_ERRORED = `MY_EVENT_ERRORED`;
 
   public static readonly USERS_FETCHED = `USERS_FETCHED`;
 

@@ -1,0 +1,115 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MicroServices Demo</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Compiled and minified CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"
+    />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="/static/style.css" rel="stylesheet">
+
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+
+    <script src="/static/script.js"></script>
+  </head>
+  <body ng-app="MainApp" ng-controller="MainCtrl">
+    <nav>
+      <div class="nav-wrapper">
+        <a href="/" class="brand-logo center">MicroServices Demo</a>
+      </div>
+    </nav>
+
+    <main class="main-container">
+      <section class="mb-16">
+        <div class="flex flex-row justify-center">
+          <button class="btn waves-effect waves-light" style="background-color: #26a69a;" type="button" name="action" ng-click="sendTestEvent()">
+            Test Event Request
+          </button>
+        </div>
+      </section>
+
+      <section class="mb-16">
+        <h1 class="text-2xl mb-5 text-center">Create User</h1>
+
+        <div class="input-field col">
+          <input
+            placeholder="Enter username"
+            ng-model="username_input"
+            name="username_input"
+            id="username_input"
+            type="text"
+            class="validate"
+          />
+          <label for="username_input">Username</label>
+        </div>
+
+        <div class="flex flex-row justify-center">
+          <button class="btn waves-effect waves-light" style="background-color: #26a69a;" type="button" name="action" ng-click="createUser()">
+            Submit <i class="material-icons right">send</i>
+          </button>
+        </div>
+      </section>
+
+      <section>
+        <h1 class="text-2xl mb-5 text-center">Users ({{ users.length }})</h1>
+
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Username</th>
+              <th>Created At</th>
+              <th>Last Updated</th>
+              <th></th>
+              <th></th>
+            </tr>
+          </thead>
+  
+          <tbody>
+            <tr ng-repeat="user in users track by $index">
+              <td>{{ user.id }}</td>
+
+              <td ng-if="editing_user_index !== $index">{{ user.username }}</td>
+              <td ng-if="editing_user_index === $index">
+                <input
+                  placeholder="Enter username"
+                  ng-model="$parent.$parent.editing_username_input"
+                  ng-keyup="onEditKeyup()"
+                  name="editing_username_input"
+                  id="editing_username_input"
+                  type="text"
+                  class="validate"
+                />
+                <button ng-disabled="!$parent.$parent.editing_username_input || $parent.$parent.editing_username_input === user.username" class="btn waves-effect waves-light" style="background-color: #26a69a;" type="button" name="action" ng-click="submitEdits()">
+                  {{ !$parent.$parent.editing_username_input ? 'Cannot be empty' : ($parent.$parent.editing_username_input === user.username) ? 'Not Changed' : 'Submit' }} <i class="material-icons right">send</i>
+                </button>
+              </td>
+
+              <td>{{ user.created_at | date : 'MMM dd, yyyy - hh:mm a' }}</td>
+              <td>{{ user.updated_at | date : 'MMM dd, yyyy - hh:mm a' }}</td>
+              <td>
+                <button class="btn waves-effect waves-light" style="background-color: #1976d2;" type="button" name="action" ng-click="setEditingUser(user, $index)">
+                  <i class="material-icons">create</i>
+                </button>
+              </td>
+              <td>
+                <button class="btn waves-effect waves-light" style="background-color: #F44336;" type="button" name="action" ng-click="deleteUser($index)">
+                  <i class="material-icons">delete</i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+  </body>
+</html>

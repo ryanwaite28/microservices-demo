@@ -15,6 +15,7 @@ import * as EventsHandler from './events.handler';
 const rabbitMqConfig: rabbit.ConfigurationOptions = {
   connection: {
     retryLimit: 2,
+    replyTimeout: 20 * 1000,
     name: 'default',
     user: process.env.RABBIT_MQ_USER,
     pass: process.env.RABBIT_MQ_PASS,

@@ -94,3 +94,20 @@ services:
     volumes:
         - .:/app
         - /app/node_modules
+
+
+  frontend:
+    build:
+      context: .
+      dockerfile: ./docker/ui.Dockerfile
+    environment:
+      PORT: 80
+      APP_NAME: FRONT_END
+    command: npm run frontend
+    volumes:
+        - .:/app
+        - /app/node_modules
+    ports:
+      - '5000:80'
+
+

@@ -6,7 +6,7 @@ import { User } from "./app.database";
 
 
 export function get_all_users() {
-  return User.findAll().then((models) => models.map((model) => model.dataValues));
+  return User.findAll({ order: [['id', 'DESC']] }).then((models) => models.map((model) => model.dataValues));
 }
 
 export function get_user_by_id(id: number) {
@@ -34,6 +34,7 @@ export async function update_user(id: number, username: string) {
   }
 
   await user.update({ username });
+  await user.reload();
 
   return user.dataValues;
 }

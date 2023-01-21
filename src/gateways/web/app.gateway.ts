@@ -1,6 +1,7 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 
+import cors from 'cors';
 import express from 'express';
 import rabbit from 'foo-foo-mq';
 
@@ -14,7 +15,7 @@ import * as RequestHandlers from './app.handler';
 const rabbitMqConfig: rabbit.ConfigurationOptions = {
   connection: {
     retryLimit: 2,
-    replyTimeout: 10 * 1000,
+    replyTimeout: 20 * 1000,
     name: 'default',
     user: process.env.RABBIT_MQ_USER,
     pass: process.env.RABBIT_MQ_PASS,
@@ -49,7 +50,9 @@ setTimeout(() => {
 // setting up REST api
 
 const app = express();
+app.use(cors({ origin: true, optionsSuccessStatus: 200, credentials: true }));
 app.use(express.json());
+
 
 
 /** GET */

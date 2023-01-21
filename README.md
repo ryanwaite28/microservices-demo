@@ -57,18 +57,7 @@ Because this is a demo, i made it easy to start this example.
 ```
 docker-compose up --remove-orphans --force-recreate --build
 ```
-3. open browser to <a href="http://localhost:300/users">http://localhost:300/users</a>
-4. in the dev tools console, run this to create a user: 
-```typescript
-fetch(`http://localhost:3000/users`, {
-  credentials: 'include', 
-  method: `POST`, 
-  headers: { 'Content-Type': 'application/json' }, 
-  body: JSON.stringify({ username: 'joe.doe' }) 
-}).then(r => r.json())
-.then(console.log);
-```
-5. refresh the page, you should see a new user object
+3. open browser to <a href="http://localhost:5000/users">http://localhost:5000/users</a>
 
 To clean up after running:
 1. run this command. NOTE that this will delete other containers, images, etc:

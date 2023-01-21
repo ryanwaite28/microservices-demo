@@ -1,5 +1,6 @@
 /** CamelCase for service methods */
 
+import { UsernameTakenError } from "../../utils/errors/user.errors";
 import {
   get_all_users,
   get_user_by_id,
@@ -26,7 +27,12 @@ export function getUserByUsername(username: string) {
 
 
 
-export function createUser(username: string) {
+export async function createUser(username: string) {
+  const check = await getUserByUsername(username);
+  if (check) {
+    throw new UsernameTakenError();
+  }
+
   return create_user(username);
 }
 

@@ -9,14 +9,15 @@ import {
   deleteUser
 } from "./app.service";
 import { UsersMsEventsConstants } from "../../utils/constants/users-ms.events.constants";
+import { UsernameTakenError } from "../../utils/errors/user.errors";
 
 
 
 
 
 export async function onTestMyEvent (event: rabbit.Message<object>) {
-  console.log('received event', { event });
-  const data = { message: `finished processing` };
+  console.log('received event', { body: event.body });
+  const data = { message: `Finished processing request!` };
   setTimeout(() => {
     event.ack();
     rabbit.publish(process.env.RABBIT_MQ_USERS_EXCHANGE, {
@@ -24,9 +25,8 @@ export async function onTestMyEvent (event: rabbit.Message<object>) {
       body: data,
       contentType: CONTENT_TYPE_APP_JSON,
     });
-
-  }, 1000);
-  return event.reply({ data }, { contentType: CONTENT_TYPE_APP_JSON } as any);
+    event.reply({ data }, { contentType: CONTENT_TYPE_APP_JSON } as any);
+  }, 5000);
 }
 
 export async function onFetchUsersAll (event: rabbit.Message<object>) {
@@ -83,15 +83,15 @@ export async function onCreateUser (event: rabbit.Message<object>) {
 
     return event.reply({ data }, { contentType: CONTENT_TYPE_APP_JSON } as any);
   }
-  catch (error) {
+  catch (error: any) {
     event.ack();
-    return event.reply({ error });
+    return event.reply({ error, message: error.message });
   }
 }
 
 export async function onUpdateUser (event: rabbit.Message<object>) {
   try {
-    console.log('create user:', event.body);
+    console.log('update user:', event.body);
     const data = await updateUser(event.body['id'], event.body['username']);
 
     rabbit.publish(process.env.RABBIT_MQ_USERS_EXCHANGE, {
@@ -103,15 +103,15 @@ export async function onUpdateUser (event: rabbit.Message<object>) {
     event.ack();
     return event.reply({ data }, { contentType: CONTENT_TYPE_APP_JSON } as any);
   }
-  catch (error) {
+  catch (error: any) {
     event.ack();
-    return event.reply({ error });
+    return event.reply({ error, message: error.message });
   }
 }
 
 export async function onDeleteUser (event: rabbit.Message<object>) {
   try {
-    console.log('create user:', event.body);
+    console.log('delete user:', event.body);
     const data = await deleteUser(event.body['id']);
     event.ack();
 
@@ -123,8 +123,8 @@ export async function onDeleteUser (event: rabbit.Message<object>) {
 
     return event.reply({ data }, { contentType: CONTENT_TYPE_APP_JSON } as any);
   }
-  catch (error) {
+  catch (error: any) {
     event.ack();
-    return event.reply({ error });
+    return event.reply({ error, message: error.message });
   }
 }

@@ -38,17 +38,24 @@ export function registerRequestSse (request: Request, response: Response) {
 
 export async function testPublishEvent (request: Request, response: Response) {
   // test event to message broker (should be picked up by users-microservice)
-  const reply = await rabbit.request(process.env.RABBIT_MQ_USERS_EXCHANGE, {
+  rabbit.request(process.env.RABBIT_MQ_USERS_EXCHANGE, {
     type: UsersMsMessagesConstants.MY_EVENT,
     body: { message: `Admit One` },
     contentType: CONTENT_TYPE_APP_JSON,
+  })
+  .then((reply) => {
+    reply.ack();
+    const body: any = reply.body;
+    sse.sendData(`1`, UsersMsEventsConstants.MY_EVENT_PROCESSED, { ...(body || {} as any), message: body?.data?.message || body?.message || 'Finished processing request!' });
+  })
+  .catch((error) => {
+    console.log(error);
+    sse.sendData(`1`, UsersMsEventsConstants.MY_EVENT_ERRORED, { message: `Error with request` });
   });
 
-  reply.ack();
 
-  sse.sendData(`1`, UsersMsEventsConstants.MY_EVENT_PROCESSED, reply.body);
 
-  return response.json(reply.body);
+  return response.json({ message: `Processing request...` });
 }
 
 
@@ -57,74 +64,93 @@ export async function testPublishEvent (request: Request, response: Response) {
 
 
 export async function getAllUsers (request: Request, response: Response)  {
-  const reply = await rabbit.request(process.env.RABBIT_MQ_USERS_EXCHANGE, {
-    type: UsersMsMessagesConstants.FETCH_USERS_ALL,
-    body: {  },
-    contentType: CONTENT_TYPE_APP_JSON,
-  });
-
-  reply.ack()?.then(() => {
-    console.log(`reply acknowledged by web api gateway`);
-  });
-
-  return response.json(reply.body);
+  try {
+    const reply = await rabbit.request(process.env.RABBIT_MQ_USERS_EXCHANGE, {
+      type: UsersMsMessagesConstants.FETCH_USERS_ALL,
+      body: {  },
+      contentType: CONTENT_TYPE_APP_JSON,
+    });
+  
+    reply.ack()?.then(() => {
+      console.log(`reply acknowledged by web api gateway`);
+    });
+  
+    return response.json(reply.body);
+  }
+  catch (error) {
+    console.log(error);
+    return response.status(500).json({ error, message: `Could not fetch all users; something went wrong` });
+  }
 }
 
 export async function getUserById (request: Request, response: Response)  {
-  if (!(/[\d]+/).test(request.params.id)) {
-    return response.status(400).json({
-      message: `id param is not a number`
+  try {
+    if (!(/[\d]+/).test(request.params.id)) {
+      return response.status(400).json({
+        message: `id param is not a number`
+      });
+    }
+  
+    const reply = await rabbit.request(process.env.RABBIT_MQ_USERS_EXCHANGE, {
+      type: UsersMsMessagesConstants.FETCH_USER_BY_ID,
+      body: { id: parseInt(request.params.id, 10) },
+      contentType: CONTENT_TYPE_APP_JSON,
     });
+  
+    reply.ack()?.then(() => {
+      console.log(`reply acknowledged by web api gateway`);
+    });
+  
+    return response.json(reply.body);
   }
-
-  const reply = await rabbit.request(process.env.RABBIT_MQ_USERS_EXCHANGE, {
-    type: UsersMsMessagesConstants.FETCH_USER_BY_ID,
-    body: { id: parseInt(request.params.id, 10) },
-    contentType: CONTENT_TYPE_APP_JSON,
-  });
-
-  reply.ack()?.then(() => {
-    console.log(`reply acknowledged by web api gateway`);
-  });
-
-  return response.json(reply.body);
+  catch (error) {
+    console.log(error);
+    return response.status(500).json({ error, message: `Could not fetch user by id; something went wrong` });
+  }
 }
 
 export async function getUserByUsername (request: Request, response: Response)  {
-  const username = request.params.username?.trim().replace(/[\s]/g, '');
-  if (!username) {
-    return response.status(400).json({
-      message: `Username is missing`
+  try {
+    const username = request.body.username?.trim().toLowerCase();
+    if (!username) {
+      return response.status(400).json({
+        message: `Username is missing`
+      });
+    }
+    if (!USERNAME_REGEX.test(username)) {
+      return response.status(400).json({
+        message: `Username is invalid`
+      });
+    }
+
+    const reply = await rabbit.request(process.env.RABBIT_MQ_USERS_EXCHANGE, {
+      type: UsersMsMessagesConstants.FETCH_USER_BY_USERNAME,
+      body: { username },
+      contentType: CONTENT_TYPE_APP_JSON,
     });
-  }
-  if (!USERNAME_REGEX.test(username)) {
-    return response.status(400).json({
-      message: `Username is invalid`
+
+    reply.ack()?.then(() => {
+      console.log(`reply acknowledged by web api gateway`);
     });
+
+    return response.json(reply.body);
   }
-
-  const reply = await rabbit.request(process.env.RABBIT_MQ_USERS_EXCHANGE, {
-    type: UsersMsMessagesConstants.FETCH_USER_BY_USERNAME,
-    body: { username },
-    contentType: CONTENT_TYPE_APP_JSON,
-  });
-
-  reply.ack()?.then(() => {
-    console.log(`reply acknowledged by web api gateway`);
-  });
-
-  return response.json(reply.body);
+  catch (error) {
+    console.log(error);
+    return response.status(500).json({ error, message: `Could not fetch user by username; something went wrong` });
+  }
 }
 
 export async function createUser (request: Request, response: Response) {
-  console.log(`request.body:`, request.body);
-  const username = request.body.username?.trim().replace(/[\s]/g, '');
+  const username = request.body.username?.trim().toLowerCase();
+  const isValidFormat = USERNAME_REGEX.test(username);
+  console.log({ username, isValidFormat });
   if (!username) {
     return response.status(400).json({
       message: `Username is missing`
     });
   }
-  if (!USERNAME_REGEX.test(username)) {
+  if (!isValidFormat) {
     return response.status(400).json({
       message: `Username is invalid`
     });
@@ -145,16 +171,17 @@ export async function createUser (request: Request, response: Response) {
     return response.status(statusCode).json(reply.body);
   }
   catch (error) {
+    console.log(error);
     return response.status(500).json({
       error,
-      message: `Could not process request; something went wrong..`
+      message: `Could not create user; something went wrong..`
     });
   }
 }
 
 export async function updateUser (request: Request, response: Response) {
   console.log(`request.body:`, request.body);
-  const username = request.body.username?.trim().replace(/[\s]/g, '');
+  const username = request.body.username?.trim().toLowerCase();
   if (!username) {
     return response.status(400).json({
       message: `Username is missing`
@@ -181,6 +208,7 @@ export async function updateUser (request: Request, response: Response) {
     return response.status(statusCode).json(reply.body);
   }
   catch (error) {
+    console.log(error);
     return response.status(500).json({
       error,
       message: `Could not process request; something went wrong..`
@@ -211,6 +239,7 @@ export async function deleteUser (request: Request, response: Response) {
     return response.status(statusCode).json(reply.body);
   }
   catch (error) {
+    console.log(error);
     return response.status(500).json({
       error,
       message: `Could not process request; something went wrong..`
