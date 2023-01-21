@@ -3,10 +3,21 @@ version: '3.8'
 
 
 volumes:
+  rabbitmq_db:
+    driver: local
+  rabbitmq_config:
+    driver: local
   users_db:
     driver: local
   notifications_db:
     driver: local
+
+
+# https://x-team.com/blog/set-up-rabbitmq-with-docker-compose/
+networks:
+  rabbitmq_go_net:
+    driver: bridge
+
 
 
 
@@ -16,6 +27,10 @@ services:
     hostname: rabbitmq
     ports:
       - '5672:5672'
+      - 15672:15672
+    volumes:
+      - rabbitmq_db:/var
+      - rabbitmq_config:/etc
 
   # Gateways
   web-api-gateway:

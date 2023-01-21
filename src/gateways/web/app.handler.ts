@@ -71,9 +71,8 @@ export async function getAllUsers (request: Request, response: Response)  {
       contentType: CONTENT_TYPE_APP_JSON,
     });
   
-    reply.ack()?.then(() => {
-      console.log(`reply acknowledged by web api gateway`);
-    });
+    await reply.ack();
+    console.log(`reply acknowledged by web api gateway`);
   
     return response.json(reply.body);
   }

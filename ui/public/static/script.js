@@ -27,6 +27,7 @@ App.controller(`MainCtrl`, ['$scope', function ($scope) {
   };
 
   $scope.getAllUsers = function() {
+    M.toast({ html: `Loading All Users...` });
     fetch(`http://localhost:3000/users`, {
       credentials: 'include', 
       method: `GET`, 
@@ -85,6 +86,7 @@ App.controller(`MainCtrl`, ['$scope', function ($scope) {
 
   $scope.username_input = '';
   $scope.createUser = function() {
+    M.toast({ html: `Loading...` });
     fetch(`http://localhost:3000/users`, {
       credentials: 'include', 
       method: `POST`, 
@@ -125,6 +127,7 @@ App.controller(`MainCtrl`, ['$scope', function ($scope) {
     $scope.editing_username_input = $scope.editing_username_input === user.username ? '' : user.username;
   };
   $scope.submitEdits = function() {
+    M.toast({ html: `Loading...` });
     fetch(`http://localhost:3000/users/${$scope.users[$scope.editing_user_index].id}`, {
       credentials: 'include', 
       method: `PUT`, 
@@ -162,6 +165,7 @@ App.controller(`MainCtrl`, ['$scope', function ($scope) {
 
   $scope.deleteUser = function(index) {
     console.log({ index });
+    M.toast({ html: `Loading...` });
     fetch(`http://localhost:3000/users/${$scope.users[index].id}`, {
       credentials: 'include', 
       method: `DELETE`, 

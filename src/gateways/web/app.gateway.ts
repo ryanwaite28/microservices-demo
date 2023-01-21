@@ -4,9 +4,14 @@ dotenv.config();
 import cors from 'cors';
 import express from 'express';
 import rabbit from 'foo-foo-mq';
+import { BehaviorSubject, filter, take } from 'rxjs';
 
 import * as RequestHandlers from './app.handler';
 
+
+
+
+const appIsReadyStream = new BehaviorSubject<boolean>(false);
 
 
 
@@ -16,7 +21,7 @@ const rabbitMqConfig: rabbit.ConfigurationOptions = {
   connection: {
     retryLimit: 2,
     replyTimeout: 20 * 1000,
-    name: 'default',
+    // name: `${process.env.APP_NAME}:${process.pid}`,
     user: process.env.RABBIT_MQ_USER,
     pass: process.env.RABBIT_MQ_PASS,
     host: process.env.RABBIT_MQ_HOST,
@@ -38,7 +43,8 @@ const rabbitMqConfig: rabbit.ConfigurationOptions = {
 setTimeout(() => {
   rabbit.configure(rabbitMqConfig)
     .then(() => {
-      console.log(`${process.env.APP_NAME}:${process.pid} connected to rabbitmq...`);;
+      console.log(`${process.env.APP_NAME}:${process.pid} connected to rabbitmq...`);
+      appIsReadyStream.next(true);
     })
     .catch((error) => {
       console.error(`${process.env.APP_NAME}:${process.pid}  - rabbitmq error:`, error);
@@ -80,8 +86,12 @@ app.delete(`/users/:id`, RequestHandlers.deleteUser);
 
 
 
-/** Start App */
+/** Start App after RabbitMQ is ready */
 
-app.listen(process.env.PORT, () => {
-  console.log(`${process.env.APP_NAME}:${process.pid} Server listening on port ${process.env.PORT}...`);
+appIsReadyStream.pipe(filter((isReady) => isReady)).pipe(take(1)).subscribe({
+  next: () => {
+    app.listen(process.env.PORT, () => {
+      console.log(`${process.env.APP_NAME}:${process.pid} Server listening on port ${process.env.PORT}...`);
+    });
+  }
 });

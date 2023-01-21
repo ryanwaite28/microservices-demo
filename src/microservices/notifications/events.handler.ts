@@ -10,8 +10,9 @@ import {
 
 
 export async function onUsersFetched (event: rabbit.Message<object>) {
-  console.log('fetched users all:', event.body);
-  event.ack();
+  console.log('fetched users all:', event.body, event.ack);
+  const p = await event.ack();
+  console.log(`notifications ack fetched users all.`);
 }
 
 export async function onCreateUser (event: rabbit.Message<object>) {
@@ -21,8 +22,7 @@ export async function onCreateUser (event: rabbit.Message<object>) {
     event.ack();
   }
   catch (error) {
-    event.ack();
-    return event.reply({ error });
+    console.log(error);
   }
 }
 
@@ -33,8 +33,7 @@ export async function onUpdateUser (event: rabbit.Message<object>) {
     event.ack();
   }
   catch (error) {
-    event.ack();
-    return event.reply({ error });
+    console.log(error);
   }
 }
 
@@ -45,7 +44,6 @@ export async function onDeleteUser (event: rabbit.Message<object>) {
     event.ack();
   }
   catch (error) {
-    event.ack();
-    return event.reply({ error });
+    console.log(error);
   }
 }

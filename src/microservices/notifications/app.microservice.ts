@@ -16,7 +16,7 @@ const rabbitMqConfig: rabbit.ConfigurationOptions = {
   connection: {
     retryLimit: 2,
     replyTimeout: 20 * 1000,
-    name: 'default',
+    // name: `${process.env.APP_NAME}:${process.pid}`,
     user: process.env.RABBIT_MQ_USER,
     pass: process.env.RABBIT_MQ_PASS,
     host: process.env.RABBIT_MQ_HOST,
