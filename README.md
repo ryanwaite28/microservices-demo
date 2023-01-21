@@ -1,5 +1,7 @@
 # MicroServices Demo
 
+![UI Demo](img/ui.png)
+
 
 Hello World! This is my example of implementing a micro-services web application architecture to demonstrate my understanding of it. 
 I will also speak on my advices on implementation and theory/philosophy behind it (not intended for every use-case, just common ones).
@@ -76,3 +78,14 @@ I actually really like microservices. Here are a few opinions i have:
 <br/>
 
 I agree with that completely. How can a service be autonomous and isolated/standalone if it has any dependency on any other service? Some may worry about data duplication; i do not think that is much of an issue because data is cheap and if the entire system is architeched correctly, that could be a benefit. I don't see the issue with user data existing in multiple databases, especially if it is managed correctly.
+
+
+
+## Example Images
+
+
+![VSCode](img/code-editor.png)
+
+![Example](img/example.png)
+
+![SSE](img/sse-events.png)
